@@ -94,8 +94,14 @@ class Tile:
 
 def get_random_move(board, last_move=None):
     list_of_moves = [UP, DOWN, LEFT, RIGHT]
-    if last_move:
-        list_of_moves.remove(last_move)
+    if last_move == UP:
+        list_of_moves.remove(DOWN)
+    elif last_move == DOWN:
+        list_of_moves.remove(UP)
+    elif last_move == LEFT:
+        list_of_moves.remove(RIGHT)
+    elif last_move == RIGHT:
+        list_of_moves.remove(LEFT)
     return random.choice(list_of_moves)
 
 
@@ -223,23 +229,31 @@ def main():
     pygame.display.set_caption('Slide Puzzle')
     BASIC_FONT = pygame.font.Font('freesansbold.ttf', BASIC_FONT_SIZE)
 
+    game_board = Board()
+    game_board.generate_board()
+
     solved_board = Board()
     solved_board.generate_board()
 
     moves_board = Board()
     moves_board.generate_board()
 
-    draw_board(solved_board, "Message")
+    draw_board(game_board, "")
     moves = moves_board.generate_new_puzzle()
     for i in moves:
-        make_move(solved_board, i)
+        make_move(game_board, i)
+    print(moves)
 
 
     while True:
         pygame. display.update()
         FPS_CLOCK.tick(FPS)
 
-        draw_board(solved_board, "Message")
+        draw_board(game_board, "")
+
+        if game_board.board == solved_board.board:
+            draw_board(game_board, "SOLVED")
+        
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -247,15 +261,15 @@ def main():
             if event.type == KEYUP:
                 if event.key == K_ESCAPE:
                     terminate()
-                move = handle_key_press(event.key, solved_board)
+                move = handle_key_press(event.key, game_board)
                 if move:
-                    make_move(solved_board, move)
+                    make_move(game_board, move)
             if event.type == MOUSEBUTTONUP:
                 pos_x, pos_y = pygame.mouse.get_pos()
-                tile_x, tile_y = get_clicked(pos_x, pos_y, solved_board)
-                move = handle_tile_click(tile_x, tile_y, solved_board)
-                if is_valid_move(solved_board, move):
-                    make_move(solved_board, move)
+                tile_x, tile_y = get_clicked(pos_x, pos_y, game_board)
+                move = handle_tile_click(tile_x, tile_y, game_board)
+                if is_valid_move(game_board, move):
+                    make_move(game_board, move)
 
 
 
