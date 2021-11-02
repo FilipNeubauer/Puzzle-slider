@@ -68,11 +68,12 @@ class Board:
     def generate_new_puzzle(self):
         moves = []
         last = None
-        for _ in range(self.difficulty):
+        while len(moves) < self.difficulty:
             rnd_move = get_random_move(self, last)
-            moves.append(rnd_move)
-            last = rnd_move
-        print(moves)
+            if is_valid_move(self, rnd_move):
+                make_move(self, rnd_move)
+                moves.append(rnd_move)
+                last = rnd_move
         return moves
 
 
@@ -95,7 +96,6 @@ def get_random_move(board, last_move=None):
     list_of_moves = [UP, DOWN, LEFT, RIGHT]
     if last_move:
         list_of_moves.remove(last_move)
-
     return random.choice(list_of_moves)
 
 
@@ -225,8 +225,12 @@ def main():
 
     solved_board = Board()
     solved_board.generate_board()
+
+    moves_board = Board()
+    moves_board.generate_board()
+
     draw_board(solved_board, "Message")
-    moves = solved_board.generate_new_puzzle()
+    moves = moves_board.generate_new_puzzle()
     for i in moves:
         make_move(solved_board, i)
 
