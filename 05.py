@@ -242,7 +242,6 @@ def main():
     moves = moves_board.generate_new_puzzle()
     for i in moves:
         make_move(game_board, i)
-    print(moves)
 
 
     while True:
@@ -253,23 +252,28 @@ def main():
 
         if game_board.board == solved_board.board:
             draw_board(game_board, "SOLVED")
-        
-
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                terminate()
-            if event.type == KEYUP:
-                if event.key == K_ESCAPE:
+            for event in pygame.event.get():
+                if event.type == QUIT:
                     terminate()
-                move = handle_key_press(event.key, game_board)
-                if move:
-                    make_move(game_board, move)
-            if event.type == MOUSEBUTTONUP:
-                pos_x, pos_y = pygame.mouse.get_pos()
-                tile_x, tile_y = get_clicked(pos_x, pos_y, game_board)
-                move = handle_tile_click(tile_x, tile_y, game_board)
-                if is_valid_move(game_board, move):
-                    make_move(game_board, move)
+                if event.type == KEYUP:
+                    if event.key == K_ESCAPE:
+                        terminate()
+        else:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    terminate()
+                if event.type == KEYUP:
+                    if event.key == K_ESCAPE:
+                        terminate()
+                    move = handle_key_press(event.key, game_board)
+                    if move:
+                        make_move(game_board, move)
+                if event.type == MOUSEBUTTONUP:
+                    pos_x, pos_y = pygame.mouse.get_pos()
+                    tile_x, tile_y = get_clicked(pos_x, pos_y, game_board)
+                    move = handle_tile_click(tile_x, tile_y, game_board)
+                    if is_valid_move(game_board, move):
+                        make_move(game_board, move)
 
 
 
