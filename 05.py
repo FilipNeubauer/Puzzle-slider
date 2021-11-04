@@ -92,6 +92,58 @@ class Tile:
         return self.num
 
 
+def slide_animation(board, direction, animation_speed):
+    blank_x, blank_y = get_blank_position(board)
+    if direction == UP:
+        tile_pos_x, tile_pos_y = blank_x, blank_y + 1
+    elif direction == DOWN:
+        tile_pos_x, tile_pos_y = blank_x, blank_y - 1
+    elif direction == LEFT:
+        tile_pos_x, tile_pos_y = blank_x + 1, blank_y
+    elif direction == RIGHT:
+        tile_pos_x, tile_pos_y = blank_x - 1, blank_y
+
+    num = board.board[tile_pos_y][tile_pos_x]
+
+    blank_x_pix, blank_y_pix = get_left_top_of_tile(board, Tile(None, blank_x, blank_y))
+    tile_x_pix, tile_y_pix = get_left_top_of_tile(board, Tile(num, tile_pos_x, tile_pos_y))
+
+    for i in range(1, animation_speed + 1):
+        draw_board(board, "")
+
+        tile = Tile(num, tile_pos_x, tile_pos_y)
+        rect = pygame.Rect(get_left_top_of_tile(board, tile), (TILE_SIZE, TILE_SIZE))
+        pygame.draw.rect(DISPLAY_SURFACE, BG_COLOR, rect)
+        text_surf = BASIC_FONT.render(str(tile.num), True, BG_COLOR)
+        text_rect = text_surf.get_rect()
+        x, y = get_left_top_of_tile(board, tile)
+        text_rect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
+        DISPLAY_SURFACE.blit(text_surf, text_rect)
+
+        if direction == UP:
+            distance = blank_y_pix - tile_y_pix
+            fraction = distance/animation_speed * i
+            draw_tile(board, tile, adj_y=fraction)
+        elif direction == DOWN:
+            distance = tile_y_pix - blank_y_pix
+            fraction = distance/animation_speed * i
+            draw_tile(board, tile, adj_y=fraction)
+        if direction == LEFT:
+            distance = blank_x_pix - tile_x_pix
+            fraction = distance/animation_speed * i
+            draw_tile(board, tile, adj_x=fraction)
+        if direction == RIGHT:
+            distance = tile_x_pix - blank_x_pix
+            fraction = distance/animation_speed * i
+            draw_tile(board, tile, adj_x=fraction)    
+    
+        pygame.display.update()
+        FPS_CLOCK.tick(FPS)
+
+
+
+
+
 def get_random_move(board, last_move=None):
     list_of_moves = [UP, DOWN, LEFT, RIGHT]
     if last_move == UP:
@@ -211,6 +263,8 @@ def draw_tile(board, tile, adj_x=0, adj_y=0):
     text_surf = BASIC_FONT.render(str(tile.num), True, MESSAGE_COLOR)
     text_rect = text_surf.get_rect()
     x, y = get_left_top_of_tile(board, tile)
+    x += adj_x
+    y += adj_y
     text_rect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
     DISPLAY_SURFACE.blit(text_surf, text_rect)
 
