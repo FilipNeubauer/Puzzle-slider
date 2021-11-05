@@ -92,6 +92,26 @@ class Tile:
         return self.num
 
 
+def reset(board, all_moves):
+    reset_list = []
+    for i in reversed(all_moves):
+        if i == UP:
+            reset_list.append(DOWN)
+        elif i == DOWN:
+            reset_list.append(UP)
+        elif i == RIGHT:
+            reset_list.append(LEFT)
+        elif i == LEFT:
+            reset_list.append(RIGHT)
+
+    for i in reset_list:
+        make_move(board, i)
+
+    
+    
+
+
+
 def slide_animation(board, direction, animation_speed):
     blank_x, blank_y = get_blank_position(board)
     if direction == UP:
@@ -240,6 +260,9 @@ def draw_board(board, message):
     DISPLAY_SURFACE.fill(BG_COLOR)
     surf, rect = make_text(message, MESSAGE_COLOR, BG_COLOR, 0, 0)          # maybe error with BLANK tile 
     DISPLAY_SURFACE.blit(surf, rect)
+    DISPLAY_SURFACE.blit(BUTTONS[0][0], BUTTONS[0][1])
+    DISPLAY_SURFACE.blit(BUTTONS[1][0], BUTTONS[1][1])
+    DISPLAY_SURFACE.blit(BUTTONS[2][0], BUTTONS[2][1])
     for index_i, i in enumerate(board.board):
         for index_j, j in enumerate(i):
             if j is BLANK:
@@ -289,6 +312,11 @@ def main():
     pygame.display.set_caption('Slide Puzzle')
     BASIC_FONT = pygame.font.Font('freesansbold.ttf', BASIC_FONT_SIZE)
 
+    new_game_button = make_text("NEW GAME", BUTTON_TEXT_COLOR, BUTTON_COLOR, WINDOW_WIDTH - 120, WINDOW_HEIGHT - 90)
+    reset_button  = make_text("RESET", BUTTON_TEXT_COLOR, BUTTON_COLOR, WINDOW_WIDTH - 120, WINDOW_HEIGHT - 60)
+    solve_button  = make_text("SOLVE", BUTTON_TEXT_COLOR, BUTTON_COLOR, WINDOW_WIDTH - 120, WINDOW_HEIGHT - 30)
+    BUTTONS = [new_game_button, reset_button, solve_button]
+
     game_board = Board()
     game_board.generate_board()
 
@@ -298,6 +326,8 @@ def main():
 
     draw_board(game_board, "")
     moves = game_board.generate_new_puzzle()
+
+    user_moves = []
 
 
     while True:
@@ -323,13 +353,26 @@ def main():
                         terminate()
                     move = handle_key_press(event.key, game_board)
                     if move:
+                        user_moves.append(move)
                         make_move(game_board, move)
                 if event.type == MOUSEBUTTONUP:
                     pos_x, pos_y = pygame.mouse.get_pos()
                     tile_x, tile_y = get_clicked(pos_x, pos_y, game_board)
-                    move = handle_tile_click(tile_x, tile_y, game_board)
-                    if is_valid_move(game_board, move):
-                        make_move(game_board, move)
+
+                    if tile_x is not None:
+                        move = handle_tile_click(tile_x, tile_y, game_board)
+                        if is_valid_move(game_board, move):
+                            user_moves.append(move)
+                            make_move(game_board, move)
+                    
+                    elif reset_button[1].collidepoint(pos_x, pos_y):
+                        reset(game_board, user_moves)
+                        user_moves.clear()
+
+                    elif solve_button[1].collidepoint(pos_x, pos_y):
+                        reset(game_board, user_moves)
+                        reset(game_board, moves)
+
 
 
 
