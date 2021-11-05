@@ -344,6 +344,21 @@ def main():
                 if event.type == KEYUP:
                     if event.key == K_ESCAPE:
                         terminate()
+                if event.type == MOUSEBUTTONUP:
+                    pos_x, pos_y = pygame.mouse.get_pos()
+                    if new_game_button[1].collidepoint(pos_x, pos_y):
+                        game_board = Board()
+                        game_board.generate_board()
+
+                        solved_board = Board()
+                        solved_board.generate_board()
+
+
+                        draw_board(game_board, "")
+                        moves = game_board.generate_new_puzzle()
+
+                        user_moves = []
+
         else:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -372,6 +387,20 @@ def main():
                     elif solve_button[1].collidepoint(pos_x, pos_y):
                         reset(game_board, user_moves)
                         reset(game_board, moves)
+
+                    elif new_game_button[1].collidepoint(pos_x, pos_y):
+                        game_board = Board()
+                        game_board.generate_board()
+
+                        solved_board = Board()
+                        solved_board.generate_board()
+
+
+                        draw_board(game_board, "")
+                        moves = game_board.generate_new_puzzle()
+
+                        user_moves = []
+
 
 
 
