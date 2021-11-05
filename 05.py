@@ -108,24 +108,23 @@ def slide_animation(board, direction, animation_speed):
     blank_x_pix, blank_y_pix = get_left_top_of_tile(board, Tile(None, blank_x, blank_y))
     tile_x_pix, tile_y_pix = get_left_top_of_tile(board, Tile(num, tile_pos_x, tile_pos_y))
 
+
+
     for i in range(1, animation_speed + 1):
         draw_board(board, "")
 
         tile = Tile(num, tile_pos_x, tile_pos_y)
-        rect = pygame.Rect(get_left_top_of_tile(board, tile), (TILE_SIZE, TILE_SIZE))
+
+        x_tile, y_tile = get_left_top_of_tile(board, tile)
+        rect = pygame.Rect((x_tile, y_tile), (TILE_SIZE, TILE_SIZE))
         pygame.draw.rect(DISPLAY_SURFACE, BG_COLOR, rect)
-        text_surf = BASIC_FONT.render(str(tile.num), True, BG_COLOR)
-        text_rect = text_surf.get_rect()
-        x, y = get_left_top_of_tile(board, tile)
-        text_rect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
-        DISPLAY_SURFACE.blit(text_surf, text_rect)
 
         if direction == UP:
             distance = blank_y_pix - tile_y_pix
             fraction = distance/animation_speed * i
             draw_tile(board, tile, adj_y=fraction)
         elif direction == DOWN:
-            distance = tile_y_pix - blank_y_pix
+            distance = blank_y_pix - tile_y_pix
             fraction = distance/animation_speed * i
             draw_tile(board, tile, adj_y=fraction)
         if direction == LEFT:
@@ -133,7 +132,7 @@ def slide_animation(board, direction, animation_speed):
             fraction = distance/animation_speed * i
             draw_tile(board, tile, adj_x=fraction)
         if direction == RIGHT:
-            distance = tile_x_pix - blank_x_pix
+            distance = blank_x_pix - tile_x_pix
             fraction = distance/animation_speed * i
             draw_tile(board, tile, adj_x=fraction)    
     
@@ -210,18 +209,22 @@ def get_clicked(x, y, board):
     return None, None
 
 
-def make_move(board, move):
+def make_move(board, move, animation_speed=8):
     blank_x, blank_y = get_blank_position(board)
     if move == UP:
+        slide_animation(board, UP, animation_speed)
         board.board[blank_y][blank_x] = board.board[blank_y + 1][blank_x]
         board.board[blank_y + 1][blank_x] = BLANK
     elif move == DOWN:
+        slide_animation(board, DOWN, animation_speed)
         board.board[blank_y][blank_x] = board.board[blank_y - 1][blank_x]
         board.board[blank_y - 1][blank_x] = BLANK
     elif move == LEFT:
+        slide_animation(board, LEFT, animation_speed)
         board.board[blank_y][blank_x] = board.board[blank_y][blank_x + 1]       # maybe oppositely
         board.board[blank_y][blank_x + 1] = BLANK
     elif move == RIGHT:
+        slide_animation(board, RIGHT, animation_speed)
         board.board[blank_y][blank_x] = board.board[blank_y][blank_x - 1]
         board.board[blank_y][blank_x - 1] = BLANK        
 
@@ -258,14 +261,17 @@ def get_left_top_of_tile(board, tile):
 
 
 def draw_tile(board, tile, adj_x=0, adj_y=0):
-    rect = pygame.Rect(get_left_top_of_tile(board, tile), (TILE_SIZE, TILE_SIZE))
+    x_tile, y_tile = get_left_top_of_tile(board, tile)
+    x_tile += adj_x
+    y_tile += adj_y
+    rect = pygame.Rect((x_tile, y_tile), (TILE_SIZE, TILE_SIZE))
     pygame.draw.rect(DISPLAY_SURFACE, TILE_COLOR, rect)
     text_surf = BASIC_FONT.render(str(tile.num), True, MESSAGE_COLOR)
     text_rect = text_surf.get_rect()
-    x, y = get_left_top_of_tile(board, tile)
-    x += adj_x
-    y += adj_y
-    text_rect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
+    x_text, y_text = get_left_top_of_tile(board, tile)
+    x_text += adj_x
+    y_text += adj_y
+    text_rect.center = (x_text + TILE_SIZE/2, y_text + TILE_SIZE/2)
     DISPLAY_SURFACE.blit(text_surf, text_rect)
 
 
@@ -289,13 +295,9 @@ def main():
     solved_board = Board()
     solved_board.generate_board()
 
-    moves_board = Board()
-    moves_board.generate_board()
 
     draw_board(game_board, "")
-    moves = moves_board.generate_new_puzzle()
-    for i in moves:
-        make_move(game_board, i)
+    moves = game_board.generate_new_puzzle()
 
 
     while True:
