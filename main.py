@@ -316,7 +316,7 @@ def main():
 
 
     while True:
-        pygame. display.update()
+        pygame.display.update()
         FPS_CLOCK.tick(FPS)
 
         draw_board(game_board, "")
